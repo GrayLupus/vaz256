@@ -1,13 +1,13 @@
 [package]
 name = "vaz256"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "GPL-3.0"
 description = "Pure Rust implementation of Verified Abbreviated Zeta 256 bits (VAZ256) - a digital signature scheme for post-quantum computing-resistant signatures combining Dilithium5 and SHAKE256 for key compressions"
 readme = "README.md"
 authors = ["Fran Luis Vazquez Alonso <cybervazquez@protonmail.com>"]
-homepage = "https://github.com/cybervazquez/vaz256"
-repository = "https://github.com/cybervazquez/vaz256"
+homepage = "https://github.com/GrayLupus/vaz256"
+repository = "https://github.com/GrayLupus/vaz256"
 keywords = ["cryptography", "quantum", "dilithium", "signatures", "security"]
 categories = ["cryptography"]
 

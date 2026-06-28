@@ -67,13 +67,28 @@ pub struct Signature {
 
 impl SecretKey {
     /// Creates a new SecretKey from raw bytes
-    fn new(secret: [u8; SECRET_KEY_SIZE]) -> Self {
+    pub fn new(secret: [u8; SECRET_KEY_SIZE]) -> Self {
         Self(secret)
     }
 
     /// Returns a reference to the underlying bytes
-    fn as_bytes(&self) -> &[u8; SECRET_KEY_SIZE] {
+    pub fn as_bytes(&self) -> &[u8; SECRET_KEY_SIZE] {
         &self.0
+    }
+
+    /// Converts the secret key to raw bytes
+    pub fn to_bytes(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+
+    /// Creates a SecretKey from raw bytes
+    pub fn from_bytes(bytes: &[u8]) -> VAZ256Result<Self> {
+        if bytes.len() != SECRET_KEY_SIZE {
+            return Err(VAZ256Error::InvalidLength);
+        }
+        let mut secret = [0u8; SECRET_KEY_SIZE];
+        secret.copy_from_slice(bytes);
+        Ok(Self::new(secret))
     }
 
     /// Converts the secret key to a hexadecimal string
@@ -85,7 +100,7 @@ impl SecretKey {
     pub fn from_hex(hex_str: &str) -> VAZ256Result<Self> {
         let decoded = hex::decode(hex_str)
             .map_err(|_| VAZ256Error::HexDecodingError)?;
-        
+
         if decoded.len() != SECRET_KEY_SIZE {
             return Err(VAZ256Error::InvalidLength);
         }
@@ -97,6 +112,33 @@ impl SecretKey {
 }
 
 impl PublicKey {
+    /// Converts the public key to raw bytes
+    pub fn to_bytes(&self) -> Vec<u8> {
+        self.key.to_vec()
+    }
+
+    /// Creates a PublicKey from raw bytes
+    pub fn from_bytes(bytes: &[u8]) -> VAZ256Result<Self> {
+        if bytes.len() != PUBLIC_KEY_SIZE {
+            return Err(VAZ256Error::InvalidLength);
+        }
+        let mut key = [0u8; PUBLIC_KEY_SIZE];
+        key.copy_from_slice(bytes);
+        Ok(Self { key })
+    }
+
+    /// Derives the PublicKey from a SecretKey.
+    /// Generates the Dilithium5 keypair from the secret bytes,
+    /// then hashes the Dilithium public key with SHAKE256 to produce
+    /// the compact 32-byte VAZ256 public key.
+    pub fn from_secret_key(sk: &SecretKey) -> VAZ256Result<Self> {
+        let keypair = Dilithium5Keypair::generate(Some(sk.as_bytes()));
+        let public_bytes = keypair.public.to_bytes();
+        let mut key = [0u8; PUBLIC_KEY_SIZE];
+        shake256(&mut key, PUBLIC_KEY_SIZE, &public_bytes, public_bytes.len());
+        Ok(Self { key })
+    }
+
     /// Converts the public key to a hexadecimal string
     pub fn to_hex(&self) -> String {
         hex::encode(self.key)
@@ -106,7 +148,7 @@ impl PublicKey {
     pub fn from_hex(hex_str: &str) -> VAZ256Result<Self> {
         let decoded = hex::decode(hex_str)
             .map_err(|_| VAZ256Error::HexDecodingError)?;
-        
+
         if decoded.len() != PUBLIC_KEY_SIZE {
             return Err(VAZ256Error::InvalidLength);
         }

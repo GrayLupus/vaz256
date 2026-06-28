@@ -2,6 +2,46 @@
 
 Verified Abbreviated Zeta 256 bits (VAZ256) - is a post-quantum cryptographic digital signature scheme that combines Dilithium5 and SHAKE256 for secure digital signatures and efficient compressed 32-byte public keys.
 
+
+## API Overview
+
+```rust
+use vaz256::{keygen, sign, verify, SecretKey, PublicKey, Signature};
+
+// Generate a random keypair
+let (sk, pk) = keygen().unwrap();
+
+// Or create a SecretKey from known bytes/hex
+let sk = SecretKey::from_hex("0000000000000000000000000000000000000000000000000000000000000000").unwrap();
+let sk = SecretKey::from_bytes(&[0u8; 32]).unwrap();
+
+// Derive the PublicKey from a SecretKey (new in v2.0)
+let pk = PublicKey::from_secret_key(&sk).unwrap();
+
+// Convert keys to/from raw bytes (new in v2.0)
+let sk_bytes = sk.to_bytes();
+let pk_bytes = pk.to_bytes();
+let sk2 = SecretKey::from_bytes(&sk_bytes).unwrap();
+let pk2 = PublicKey::from_bytes(&pk_bytes).unwrap();
+
+// Hex serialization (existing API)
+let sk_hex = sk.to_hex();
+let pk_hex = pk.to_hex();
+let sk3 = SecretKey::from_hex(&sk_hex).unwrap();
+let pk3 = PublicKey::from_hex(&pk_hex).unwrap();
+
+// Sign and verify
+let msg = b"hello world";
+let sig = sign(msg, &sk).unwrap();
+assert!(verify(msg, &sig, &pk).is_ok());
+
+// Signature serialization
+let sig_bytes = sig.to_bytes();
+let sig_hex = sig.to_hex();
+let sig2 = Signature::from_bytes(&sig_bytes).unwrap();
+let sig3 = Signature::from_hex(&sig_hex).unwrap();
+```
+
 ## Acknowledgments and Third-Party Code
 
 This project includes modified code from the following open-source projects:

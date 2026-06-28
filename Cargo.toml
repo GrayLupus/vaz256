@@ -1,6 +1,6 @@
 [package]
 name = "vaz256"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 license = "GPL-3.0"
 description = "Pure Rust implementation of Verified Abbreviated Zeta 256 bits (VAZ256) - a digital signature scheme for post-quantum computing-resistant signatures combining Dilithium5 and SHAKE256 for key compressions"
